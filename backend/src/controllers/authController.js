@@ -1,4 +1,11 @@
-import User from "../models/userModel";
+import fs from "fs";
+
+console.log(
+  "MODELS DIR:",
+  fs.readdirSync(new URL("../models", import.meta.url))
+);
+
+import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 const register = async (req, res) => {
   try {
