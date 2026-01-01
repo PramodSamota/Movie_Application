@@ -1,9 +1,4 @@
-// 4. MOVIE CONTROLLERS
-// ==========================================
-
-// -------- Get All Movies (with Pagination) --------
-
-import Movie from "../models/MovieModel.js";
+import Movie from "../models/movieModel.js";
 const getAllMovies = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -38,7 +33,6 @@ const getAllMovies = async (req, res) => {
   }
 };
 
-// -------- Get Sorted Movies --------
 const getSortedMovies = async (req, res) => {
   try {
     const { sortBy, order } = req.query;
@@ -79,7 +73,6 @@ const getSortedMovies = async (req, res) => {
   }
 };
 
-// -------- Search Movies --------
 const searchMovies = async (req, res) => {
   try {
     const { query } = req.query;
@@ -132,41 +125,39 @@ const searchMovies = async (req, res) => {
   }
 };
 
-// -------- Add Movie (Admin Only - with Queue) --------
-const addMovie = async (req, res) => {
-  try {
-    const movieData = {
-      ...req.body,
-      addedBy: req.user._id,
-    };
+// const addMovie = async (req, res) => {
+//   try {
+//     const movieData = {
+//       ...req.body,
+//       addedBy: req.user._id,
+//     };
 
-    // Add to queue for lazy insertion
-    const queueJob = await QueueJob.create({
-      type: "movie_insert",
-      data: movieData,
-      status: "pending",
-    });
+//     // Add to queue for lazy insertion
+//     const queueJob = await QueueJob.create({
+//       type: "movie_insert",
+//       data: movieData,
+//       status: "pending",
+//     });
 
-    // Process queue in background
-    processQueue();
+//     // Process queue in background
+//     processQueue();
 
-    res.status(202).json({
-      success: true,
-      message: "Movie added to processing queue",
-      data: {
-        jobId: queueJob._id,
-        status: "pending",
-      },
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+//     res.status(202).json({
+//       success: true,
+//       message: "Movie added to processing queue",
+//       data: {
+//         jobId: queueJob._id,
+//         status: "pending",
+//       },
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
-// -------- Update Movie (Admin Only) --------
 const updateMovie = async (req, res) => {
   try {
     const { id } = req.params;
@@ -200,7 +191,6 @@ const updateMovie = async (req, res) => {
   }
 };
 
-// -------- Delete Movie (Admin Only) --------
 const deleteMovie = async (req, res) => {
   try {
     const { id } = req.params;
@@ -226,3 +216,5 @@ const deleteMovie = async (req, res) => {
     });
   }
 };
+
+export { getAllMovies, searchMovies, updateMovie, deleteMovie };

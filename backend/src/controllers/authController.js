@@ -1,11 +1,9 @@
-// -------- Register User --------
-import User from "../models/UserModel";
+import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 const register = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
 
-    // Validation
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -13,11 +11,10 @@ const register = async (req, res) => {
       });
     }
 
-    // Check if user exists
     const existingUser = await User.findOne({
       $or: [{ email }, { username }],
     });
-
+    console.log("existingUser", existingUser);
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -25,31 +22,13 @@ const register = async (req, res) => {
       });
     }
 
-    // Create user
     const user = await User.create({
       username,
       email,
       password,
       role: role || "user",
     });
-
-    // Generate tokens
-    const accessToken = jwt.sign(
-      { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "15m" }
-    );
-
-    const refreshToken = jwt.sign(
-      { userId: user._id },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    // Save refresh token
-    user.refreshToken = refreshToken;
-    await user.save();
-
+    console.log("User registered:", user);
     res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -60,8 +39,6 @@ const register = async (req, res) => {
           email: user.email,
           role: user.role,
         },
-        accessToken,
-        refreshToken,
       },
     });
   } catch (error) {
@@ -72,7 +49,6 @@ const register = async (req, res) => {
   }
 };
 
-// -------- Login User --------
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -85,6 +61,7 @@ const login = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
+    console.log("user", user);
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -93,6 +70,7 @@ const login = async (req, res) => {
     }
 
     const isPasswordValid = await user.comparePassword(password);
+
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
@@ -100,22 +78,23 @@ const login = async (req, res) => {
       });
     }
 
-    // Generate tokens
-    const accessToken = jwt.sign(
+    const accessToken = await jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "15m" }
     );
 
-    const refreshToken = jwt.sign(
+    console.log("accessToken", accessToken);
+
+    const refreshToken = await jwt.sign(
       { userId: user._id },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "7d" }
     );
 
     user.refreshToken = refreshToken;
-    user.lastLogin = Date.now();
     await user.save();
+    user.lastLogin = Date.now();
 
     res.status(200).json({
       success: true,
@@ -138,3 +117,81 @@ const login = async (req, res) => {
     });
   }
 };
+
+const refreshAccessToken = async (req, res) => {
+  const { refreshToken: oldRefreshToken } = req.body;
+  console.log("oldRefreshToken", oldRefreshToken);
+  if (!oldRefreshToken) return res.sendStatus(401);
+
+  const user = await User.findOne({ refreshToken: oldRefreshToken });
+  console.log("refresAccessUser", user);
+  if (!user) return res.sendStatus(403);
+  console.log("user", user);
+  const verified = jwt.verify(
+    oldRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+
+  if (!verified) return res.sendStatus(403);
+
+  const newAccessToken = jwt.sign(
+    { userId: user._id },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" }
+  );
+  cosole.log("newAccessToken", newAccessToken);
+  const newRefreshToken = jwt.sign(
+    { userId: user._id },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  user.refreshToken = newRefreshToken;
+  await user.save();
+
+  res.json({
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  });
+};
+
+const logout = async (req, res) => {
+  const refreshToken = req.header("Authorization").replace("Bearer ", "");
+  const accessToken = req.header("Authorization").replace("Bearer ", "");
+  await User.updateOne({ refreshToken }, { $set: { refreshToken: null } });
+
+  res.status(200).json({ message: "Logged out" });
+};
+
+const getAllUser = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getme = async (req, res) => {
+  try {
+    const user = req.user;
+    res.status(200).json({
+      success: true,
+      message: "User fetched successfully",
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+export { register, login, refreshAccessToken, logout, getAllUser, getme };
