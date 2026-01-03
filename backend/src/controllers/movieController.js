@@ -125,38 +125,27 @@ const searchMovies = async (req, res) => {
   }
 };
 
-// const addMovie = async (req, res) => {
-//   try {
-//     const movieData = {
-//       ...req.body,
-//       addedBy: req.user._id,
-//     };
+const addMovie = async (req, res) => {
+  try {
+    const movieData = {
+      ...req.body,
+      addedBy: req.user._id,
+    };
 
-//     // Add to queue for lazy insertion
-//     const queueJob = await QueueJob.create({
-//       type: "movie_insert",
-//       data: movieData,
-//       status: "pending",
-//     });
-
-//     // Process queue in background
-//     processQueue();
-
-//     res.status(202).json({
-//       success: true,
-//       message: "Movie added to processing queue",
-//       data: {
-//         jobId: queueJob._id,
-//         status: "pending",
-//       },
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
+    const movie = await Movie.create(movieData);
+    console.log("movie", movie);
+    res.status(201).json({
+      success: true,
+      message: "Movie added to processing queue",
+      movie,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 const updateMovie = async (req, res) => {
   try {
@@ -217,4 +206,11 @@ const deleteMovie = async (req, res) => {
   }
 };
 
-export { getAllMovies, searchMovies, updateMovie, deleteMovie };
+export {
+  getAllMovies,
+  searchMovies,
+  addMovie,
+  updateMovie,
+  getSortedMovies,
+  deleteMovie,
+};
