@@ -10,7 +10,7 @@ import {
 import { verifyUser, authorizeAdmin } from "../middleware/authMiddleware.js";
 const router = Router();
 
-router.get("/AllMovies", getAllMovies);
+router.get("/allMovies", getAllMovies);
 router.get("/sorted", getSortedMovies);
 router.get("/search", searchMovies);
 

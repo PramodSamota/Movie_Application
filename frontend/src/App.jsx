@@ -6,9 +6,11 @@ import { ROUTES } from "./utils/constants";
 
 // Lazy load pages for code splitting
 
+const HomePage = lazy(() => import("./pages/HomePage"));
+const SearchPage = lazy(() => import("./pages/SearchPage"));
+const MovieDetailPage = lazy(() => import("./pages/MovieDetailPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
-
 // Loading fallback
 const LoadingFallback = () => (
   <Box
@@ -29,8 +31,12 @@ function App() {
           {/* Public Routes */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+          <Route path={ROUTES.HOME} element={<HomePage />} />
+          <Route path={ROUTES.SEARCH} element={<SearchPage />} />
+          <Route path={ROUTES.MOVIE_DETAIL} element={<MovieDetailPage />} />
+          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+          <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
         </Routes>
-        <h1>App</h1>
       </Suspense>
     </Layout>
   );
