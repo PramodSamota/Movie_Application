@@ -33,6 +33,7 @@ const SearchPage = () => {
 
   const handleFilterChange = (filters) => {
     // In a real app, you'd send these filters to the backend
+
     console.log("Filters applied:", filters);
   };
 

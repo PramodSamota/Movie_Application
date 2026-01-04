@@ -71,10 +71,18 @@ const movieSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    indexes: [{ title: "text", description: "text" }],
   }
 );
 
+movieSchema.index(
+  { title: "text", description: "text" },
+  {
+    weights: {
+      title: 5,
+      description: 1,
+    },
+  }
+);
 const Movie = mongoose.model("Movie", movieSchema);
 
 export default Movie;

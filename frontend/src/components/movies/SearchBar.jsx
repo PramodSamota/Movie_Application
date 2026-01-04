@@ -9,18 +9,17 @@ const SearchBar = ({ onSearch, initialValue = "" }) => {
   const isFirstRender = useRef(true);
 
   useEffect(() => {
-    // ❌ Skip first render to avoid auto-fetch loop
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
 
     onSearch(debouncedSearchTerm);
-  }, [debouncedSearchTerm]); // ❗ remove onSearch from deps
+  }, [debouncedSearchTerm]);
 
   const handleClear = () => {
     setSearchTerm("");
-    onSearch(""); // explicit user action
+    onSearch("");
   };
 
   return (
