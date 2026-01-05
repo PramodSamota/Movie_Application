@@ -3,7 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import xss from "xss-clean";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
 import MovieRouter from "./routes/movieRoute.js";
@@ -23,7 +22,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet()); // for http headers
-app.use(xss()); // for  XSS Protection
+
 app.use(mongoSanitize()); //Data Sanitization (NoSQL Injection)
 app.use(hpp()); // HTTP Parameter Pollution Protection
 
