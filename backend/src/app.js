@@ -9,7 +9,8 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://movie-application-teal-xi.vercel.app",
+    credentials: true,
   })
 );
 app.use(express.json());

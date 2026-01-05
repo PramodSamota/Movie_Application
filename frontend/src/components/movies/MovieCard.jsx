@@ -1,3 +1,6 @@
+// ==========================================
+// Fixed MovieCard.jsx
+// ==========================================
 import React from "react";
 import {
   Card,
@@ -25,6 +28,7 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = false }) => {
     <Card
       sx={{
         height: "100%",
+        width: "100%", // IMPORTANT: Take full width of grid cell
         display: "flex",
         flexDirection: "column",
         transition: "transform 0.2s, box-shadow 0.2s",
@@ -41,9 +45,12 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = false }) => {
           movie.posterUrl || "https://via.placeholder.com/300x450?text=No+Image"
         }
         alt={movie.title}
-        sx={{ objectFit: "cover" }}
+        sx={{
+          objectFit: "cover",
+          width: "100%",
+        }}
       />
-      <CardContent sx={{ flexGrow: 1 }}>
+      <CardContent sx={{ flexGrow: 1, width: "100%" }}>
         {/* Rank Badge */}
         {movie.rank && (
           <Chip
@@ -55,7 +62,19 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = false }) => {
         )}
 
         {/* Title */}
-        <Typography gutterBottom variant="h6" component="h2" noWrap>
+        <Typography
+          gutterBottom
+          variant="h6"
+          component="h2"
+          sx={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            minHeight: "3em",
+          }}
+        >
           {movie.title}
         </Typography>
 
@@ -102,13 +121,20 @@ const MovieCard = ({ movie, onEdit, onDelete, showActions = false }) => {
         </Typography>
       </CardContent>
 
-      <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
+      <CardActions
+        sx={{
+          justifyContent: "space-between",
+          px: 2,
+          pb: 2,
+          width: "100%", // IMPORTANT: Full width
+        }}
+      >
         <Button
           size="small"
           startIcon={<Visibility />}
           onClick={handleViewDetails}
         >
-          View Details
+          View
         </Button>
 
         {showActions && (
