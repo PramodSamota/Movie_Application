@@ -6,10 +6,11 @@ import cors from "cors";
 const app = express();
 
 dotenv.config();
-
+console.log("process.env.MONGODB_URI", process.env.CLIENT_URL);
+const CLIENT_URL = process.env.CLIENT_URL;
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: CLIENT_URL,
     credentials: true,
   })
 );
