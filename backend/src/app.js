@@ -9,7 +9,7 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: "https://movie-application-teal-xi.vercel.app",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
