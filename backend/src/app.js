@@ -3,40 +3,55 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
 import MovieRouter from "./routes/movieRoute.js";
 import UserRouter from "./routes/authRoute.js";
-const app = express();
+import { errorHandler } from "./middleware/authMiddleware.js";
 
 dotenv.config();
-console.log("process.env.MONGODB_URI", process.env.CLIENT_URL);
-const CLIENT_URL = process.env.CLIENT_URL;
+
+const app = express();
+
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+
+/* Core middleware */
+app.use(express.json({ limit: "10kb" }));
+app.use(helmet());
+
 app.use(
   cors({
     origin: CLIENT_URL,
     credentials: true,
   })
 );
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true }));
 
-app.use(helmet()); // for http headers
+/* Rate limiting */
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
 
-app.use(mongoSanitize()); //Data Sanitization (NoSQL Injection)
-app.use(hpp()); // HTTP Parameter Pollution Protection
+const authLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 10,
+});
 
-//  Rate Limiting (ANTI-DDOS)
+app.use("/api/v1", apiLimiter);
+app.use("/api/v1/auth", authLimiter);
+
+/* HPP */
 app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+  hpp({
+    whitelist: ["page", "sort", "limit"],
   })
 );
 
+/* Routes */
 app.get("/", (req, res) => res.status(200).json("Hello World!"));
-
 app.use("/api/v1/auth", UserRouter);
 app.use("/api/v1/movies", MovieRouter);
+
+/* Global error handler */
+app.use(errorHandler);
 
 export default app;
